@@ -37,6 +37,17 @@ describe('盤と駒', () => {
     expect(king0.pos).toEqual({ x: 2, y: 0 });
     expect(king1.pos).toEqual({ x: 2, y: 8 });
     expect(state.players[0].hp).toBe(partyHp(CARD_DB, parties[0]));
+    // 桂と桂・香と香が同じ筋で向かい合う（先手は銀の隣、後手は金の隣に桂）
+    const at = (x: number, y: number) => {
+      const p = state.pieces.find((q) => q.pos && q.pos.x === x && q.pos.y === y)!;
+      return `${p.owner}${CARD_DB.cards[p.cardId].piece}`;
+    };
+    expect([0, 1, 2, 3, 4].map((x) => at(x, 0))).toEqual(['0桂', '0銀', '0王', '0金', '0香']);
+    expect([0, 1, 2, 3, 4].map((x) => at(x, 8))).toEqual(['1桂', '1金', '1王', '1銀', '1香']);
+    expect(at(1, 1)).toBe('0角');
+    expect(at(3, 1)).toBe('0飛');
+    expect(at(1, 7)).toBe('1飛');
+    expect(at(3, 7)).toBe('1角');
     expect(state.players[0].turnCount).toBe(1);
   });
 

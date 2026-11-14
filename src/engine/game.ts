@@ -78,7 +78,7 @@ export function createGame(r: Rules, parties: [Party, Party]): ApplyResult {
   let uid = 1;
   for (const pl of [0, 1] as const) {
     for (const slot of SLOTS) {
-      const base = INITIAL_POSITIONS[slot.id];
+      const base = INITIAL_POSITIONS[pl][slot.id];
       const pos = pl === 0 ? { ...base } : { x: 4 - base.x, y: 8 - base.y };
       pieces.push(newPiece(uid++, parties[pl][slot.id], pl, pos));
     }

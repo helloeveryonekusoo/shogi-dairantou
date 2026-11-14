@@ -27,13 +27,10 @@ export const SLOTS = [
 export type SlotId = (typeof SLOTS)[number]['id'];
 export type Party = Record<SlotId, string>;
 
-/** 先手から見た初期配置（x = 筋0..4、y = 段0..8）。後手は点対称 */
-export const INITIAL_POSITIONS: Record<SlotId, { x: number; y: number }> = {
-  lance: { x: 0, y: 0 },
-  silver: { x: 1, y: 0 },
-  king: { x: 2, y: 0 },
-  gold: { x: 3, y: 0 },
-  knight: { x: 4, y: 0 },
+type Layout = Record<SlotId, { x: number; y: number }>;
+
+/** 2段目・3段目（先手・後手で同じ。自分から見た位置） */
+const BACK_ROWS = {
   bishop: { x: 1, y: 1 },
   rook: { x: 3, y: 1 },
   pawn1: { x: 0, y: 2 },
@@ -42,6 +39,31 @@ export const INITIAL_POSITIONS: Record<SlotId, { x: number; y: number }> = {
   pawn4: { x: 3, y: 2 },
   pawn5: { x: 4, y: 2 },
 };
+
+/**
+ * 初期配置。それぞれのプレイヤーが「自分から見た」位置（x = 左から筋0..4、y = 手前から段0..8）。
+ * 後手は盤に置くとき点対称に回す。
+ * 1段目は 先手：桂・銀・王・金・香 ／ 後手：香・銀・王・金・桂 で、
+ * 盤の上では 桂と桂・香と香 が同じ筋で向かい合う（先手は銀の隣、後手は金の隣に桂）。
+ */
+export const INITIAL_POSITIONS: [Layout, Layout] = [
+  {
+    knight: { x: 0, y: 0 },
+    silver: { x: 1, y: 0 },
+    king: { x: 2, y: 0 },
+    gold: { x: 3, y: 0 },
+    lance: { x: 4, y: 0 },
+    ...BACK_ROWS,
+  },
+  {
+    lance: { x: 0, y: 0 },
+    silver: { x: 1, y: 0 },
+    king: { x: 2, y: 0 },
+    gold: { x: 3, y: 0 },
+    knight: { x: 4, y: 0 },
+    ...BACK_ROWS,
+  },
+];
 
 export function partyCost(db: CardDB, party: Party): number {
   return SLOTS.reduce((sum, s) => sum + (db.cards[party[s.id]]?.cost ?? 0), 0);
