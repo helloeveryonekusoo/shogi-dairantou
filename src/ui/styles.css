@@ -11,14 +11,20 @@
   --wood-line: #8a6430;
   --piece1: #fff3d6;
   --piece2: #f0d79c;
-  --def: #3d7bd9;
-  --atk: #d94a3d;
-  --dis: #9a4ad9;
+  --def: #f5c518;
+  --atk: #e23b2e;
+  --dis: #9b4de0;
   --s: #f5c542;
   --a: #c9d2de;
   --b: #c98a52;
   --sq: clamp(40px, min(calc((100vh - 230px) / 9.4), 10vw), 68px);
   color-scheme: dark;
+}
+/* スマホ：盤を画面の横幅いっぱいに */
+@media (max-width: 600px) {
+  :root {
+    --sq: clamp(40px, min(calc((100vh - 200px) / 9.4), 17vw), 68px);
+  }
 }
 
 * {
@@ -155,13 +161,13 @@ button.big {
   border-color: #d9583d;
 }
 .attr-tag-守 {
-  color: #8bb7ff;
+  color: #ffd84a;
 }
 .attr-tag-攻 {
-  color: #ff8b7f;
+  color: #ff7a6b;
 }
 .attr-tag-妨害 {
-  color: #d29bff;
+  color: #c58cff;
 }
 .rar-S {
   color: var(--s);
@@ -668,85 +674,278 @@ button.big {
   pointer-events: none;
 }
 
-/* 駒 */
+/* 駒
+   基本色＝属性（神：黄、龍：赤、魔：紫） / ふちと輝き＝レアリティ（S：虹、A：金、B：銀） */
 .piece {
+  --pent: polygon(50% 0%, 88% 14%, 100% 100%, 0% 100%, 12% 14%);
+  --rim: 4px;
   position: relative;
-  width: 88%;
-  height: 94%;
+  width: 86%;
+  height: 90%;
   pointer-events: none;
 }
 .piece.small {
+  --rim: 3px;
   width: calc(var(--sq) * 0.72);
   height: calc(var(--sq) * 0.78);
 }
-.piece-body {
+.piece-shape {
   position: absolute;
   inset: 0;
-  clip-path: polygon(50% 0%, 88% 14%, 100% 100%, 0% 100%, 12% 14%);
-  background: linear-gradient(180deg, var(--piece1), var(--piece2));
+}
+.piece.flipped .piece-shape {
+  transform: rotate(180deg);
+}
+.piece-frame,
+.piece-line,
+.piece-body,
+.piece-glow-in {
+  position: absolute;
+  clip-path: var(--pent);
+}
+.piece-frame {
+  inset: 0;
+}
+/* ふちと本体の間の細い線（ふちの色を本体からくっきり分ける） */
+.piece-line {
+  inset: calc(var(--rim) - 1.5px);
+  background: rgba(40, 18, 0, 0.6);
+}
+.piece-body {
+  inset: var(--rim);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 12%;
-  border-bottom: 5px solid var(--line);
+  padding-top: 14%;
+  overflow: hidden;
 }
-.piece.flipped .piece-body {
-  transform: rotate(180deg);
-}
+/* 属性の基本色 */
 .piece.attr-守 .piece-body {
-  border-bottom-color: var(--def);
+  background: linear-gradient(170deg, #fff8d2 0%, #ffe066 45%, #e9b10f 100%);
 }
 .piece.attr-攻 .piece-body {
-  border-bottom-color: var(--atk);
+  background: linear-gradient(170deg, #ffb3a3 0%, #f0563f 45%, #a8180c 100%);
 }
 .piece.attr-妨害 .piece-body {
-  border-bottom-color: var(--dis);
+  background: linear-gradient(170deg, #e6ceff 0%, #a568ef 45%, #5a1fa6 100%);
 }
 .piece-kanji {
   font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
   font-weight: 900;
   font-size: calc(var(--sq) * 0.42);
   line-height: 1;
-  color: #1a1208;
+  position: relative;
+  z-index: 1;
 }
 .piece.small .piece-kanji {
   font-size: calc(var(--sq) * 0.32);
 }
-.piece.promoted .piece-kanji {
-  color: #c4161c;
-}
 .piece-name {
   font-size: calc(var(--sq) * 0.13);
-  color: #4a3a20;
   white-space: nowrap;
   overflow: hidden;
   max-width: 92%;
   text-overflow: ellipsis;
   margin-top: 1px;
+  position: relative;
+  z-index: 1;
+  font-weight: bold;
 }
 .piece.small .piece-name {
   font-size: calc(var(--sq) * 0.11);
 }
-.piece-rarity {
+.piece.attr-守 .piece-kanji,
+.piece.attr-守 .piece-name {
+  color: #3a2600;
+}
+.piece.attr-攻 .piece-kanji,
+.piece.attr-攻 .piece-name,
+.piece.attr-妨害 .piece-kanji,
+.piece.attr-妨害 .piece-name {
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+/* 成った駒の字 */
+.piece.promoted.attr-守 .piece-kanji {
+  color: #d1121b;
+}
+.piece.promoted.attr-攻 .piece-kanji,
+.piece.promoted.attr-妨害 .piece-kanji {
+  color: #fff35c;
+}
+
+/* レアリティのふち */
+.piece.rar-S .piece-frame {
+  background: conic-gradient(from 0deg, #ff3b3b, #ffb33b, #fff23b, #4dff6a, #3bdcff, #4d6bff, #c33bff, #ff3b9d, #ff3b3b);
+  animation: rainbow-hue 2.4s linear infinite;
+}
+.piece.rar-A .piece-frame {
+  background: linear-gradient(135deg, #fff6b8 0%, #e2b10f 30%, #fff3a6 50%, #b8860b 70%, #ffe88a 100%);
+}
+.piece.rar-B .piece-frame {
+  background: linear-gradient(135deg, #ffffff 0%, #aab2bd 30%, #f4f6f8 50%, #7e8794 70%, #e6e9ed 100%);
+}
+
+/* 輝き（ふちの外にもれる光） */
+.piece-glow {
   position: absolute;
-  top: 16%;
-  left: 14%;
-  font-size: calc(var(--sq) * 0.12);
-  font-weight: bold;
+  inset: -3px;
+  pointer-events: none;
 }
-.piece.rar-S .piece-rarity {
-  color: #b8860b;
+.piece-glow-in {
+  inset: 0;
 }
-.piece.rar-A .piece-rarity {
-  color: #6a7686;
+.piece.rar-S .piece-glow {
+  animation: rainbow-glow 2.4s linear infinite;
 }
-.piece.rar-B .piece-rarity {
-  color: #8a5a32;
+.piece.rar-S .piece-glow-in {
+  background: conic-gradient(#ff3b3b, #fff23b, #4dff6a, #3bdcff, #c33bff, #ff3b3b);
 }
-.piece.rar-S .piece-body {
-  background: linear-gradient(180deg, #fff8dc, #f3d27a);
+.piece.rar-A .piece-glow {
+  filter: blur(4px);
+  animation: glow-pulse 2.4s ease-in-out infinite alternate;
 }
+.piece.rar-A .piece-glow-in {
+  background: #ffcf33;
+}
+.piece.rar-B .piece-glow {
+  filter: blur(3px);
+  opacity: 0.45;
+}
+.piece.rar-B .piece-glow-in {
+  background: #e8eef5;
+}
+
+/* 表面をなでる光 */
+.piece-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.7) 50%, transparent 65%);
+  background-size: 300% 100%;
+  background-position: 150% 0;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+.piece.rar-S .piece-shine {
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 120, 200, 0.6) 42%, rgba(255, 255, 255, 0.95) 50%, rgba(120, 220, 255, 0.6) 58%, transparent 70%);
+  background-size: 300% 100%;
+  mix-blend-mode: overlay;
+  animation: shine-sweep 1.8s ease-in-out infinite;
+}
+.piece.rar-A .piece-shine {
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 236, 150, 0.85) 50%, transparent 65%);
+  background-size: 300% 100%;
+  mix-blend-mode: overlay;
+  animation: shine-sweep 3.2s ease-in-out infinite;
+}
+.piece.rar-B .piece-shine {
+  animation: shine-sweep 5s ease-in-out infinite;
+}
+
+/* Sだけ：きらきら */
+.piece-sparkle::before,
+.piece-sparkle::after {
+  content: '✦';
+  position: absolute;
+  color: #fff;
+  font-size: calc(var(--sq) * 0.16);
+  text-shadow: 0 0 4px #fff, 0 0 8px #ff8cf0;
+  animation: twinkle 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.piece-sparkle::before {
+  top: 8%;
+  right: 4%;
+}
+.piece-sparkle::after {
+  bottom: 14%;
+  left: 2%;
+  animation-delay: 0.7s;
+}
+
+@keyframes rainbow-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+@keyframes rainbow-glow {
+  0% {
+    filter: blur(5px) hue-rotate(0deg) brightness(1.1);
+    opacity: 0.75;
+  }
+  50% {
+    filter: blur(6px) hue-rotate(180deg) brightness(1.4);
+    opacity: 1;
+  }
+  100% {
+    filter: blur(5px) hue-rotate(360deg) brightness(1.1);
+    opacity: 0.75;
+  }
+}
+@keyframes glow-pulse {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0.85;
+  }
+}
+@keyframes shine-sweep {
+  0% {
+    background-position: 150% 0;
+  }
+  55%,
+  100% {
+    background-position: -50% 0;
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(45deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .piece *,
+  .piece *::before,
+  .piece *::after {
+    animation: none !important;
+  }
+}
+
+/* 攻撃力 */
+.piece-atk {
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  font-size: max(9px, calc(var(--sq) * 0.15));
+  line-height: 1.15;
+  font-weight: 900;
+  padding: 0 4px;
+  border-radius: 6px;
+  background: rgba(15, 17, 22, 0.85);
+  color: #fff;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  z-index: 2;
+}
+.piece.small .piece-atk {
+  font-size: max(8px, calc(var(--sq) * 0.13));
+}
+.piece-atk.up {
+  color: #7dffa8;
+}
+.piece-atk.down {
+  color: #ff8b6b;
+}
+
 .piece-badges {
   position: absolute;
   top: -4px;
@@ -755,6 +954,7 @@ button.big {
   flex-direction: column;
   gap: 1px;
   align-items: flex-end;
+  z-index: 2;
 }
 .badge {
   font-size: 10px;
@@ -764,20 +964,31 @@ button.big {
   color: #fff;
   font-weight: bold;
 }
+.badge-promo {
+  background: #c4161c;
+}
 .badge-imm {
   background: #c46a12;
 }
 .badge-seal {
   background: #7a2ad0;
 }
-.badge-up {
-  background: #1f9a4a;
-}
-.badge-down {
-  background: #b0302a;
-}
 .badge-count {
   background: #333;
+}
+
+/* 長押しで端末のメニューが出ないように */
+.sq,
+.hand-slot {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+.peek {
+  width: min(420px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 /* 右の情報欄 */

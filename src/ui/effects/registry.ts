@@ -11,6 +11,7 @@
 // ─────────────────────────────────────────────
 import type { GameEvent } from '../../engine';
 import type { EffectStep } from './types';
+import { displayText } from '../attributes';
 
 export interface EffectEnv {
   cardName: (cardId: string) => string;
@@ -69,7 +70,7 @@ export const DEFAULT_EFFECTS: EffectTable = {
   }),
   ability: (ev, env) => ({
     effects: [
-      { kind: 'banner', title: `【${KIND_LABEL[ev.kind]}】${env.cardName(ev.cardId)}`, text: ev.text, color: KIND_COLOR[ev.kind] },
+      { kind: 'banner', title: `【${KIND_LABEL[ev.kind]}】${env.cardName(ev.cardId)}`, text: displayText(ev.text), color: KIND_COLOR[ev.kind] },
       ...(ev.pos ? [{ kind: 'flash' as const, square: ev.pos, color: KIND_COLOR[ev.kind] }] : []),
     ],
     duration: 650,

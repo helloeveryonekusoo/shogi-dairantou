@@ -1,7 +1,7 @@
 // 対局画面
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChoiceRequest, GameEvent, GameState, Move, Party, PieceState, Player, Pos, Rules } from '../engine';
-import { FILES, RANKS, applyMove, createGame, handPieces, legalMoves, nextChoice, other, resign, samePos } from '../engine';
+import { FILES, RANKS, applyMove, buildBoard, createGame, effectiveAtk, handPieces, legalMoves, nextChoice, other, resign, samePos } from '../engine';
 import { type Room, resignRoom, submitMove, watchRoom } from '../online/rooms';
 import { type CpuLevel, chooseMove } from '../ai/cpu';
 import { PieceView } from './Piece';
@@ -9,6 +9,7 @@ import { CardView } from './CardView';
 import { type LogLine, eventToLog } from './log';
 import { EffectLayer, useEffects } from './effects/EffectLayer';
 import { stepFor } from './effects/registry';
+import { displayText } from './attributes';
 
 export interface GameSetup {
   parties: [Party, Party];
@@ -51,6 +52,9 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
   const [selected, setSelected] = useState<number | null>(null);
   const [inspect, setInspect] = useState<number | null>(null);
   const [pending, setPending] = useState<Pending>(null);
+  /** 長押しで詳細を開いている駒 */
+  const [peek, setPeek] = useState<number | null>(null);
+  const press = useRef<{ timer: number; x: number; y: number; fired: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [speed, setSpeed] = useState<Speed>('normal');
   const [flipBoard, setFlipBoard] = useState(remote ? remote.me === 1 : setup.cpu === 0);
@@ -324,6 +328,49 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
   const inspected = pieceByUid(inspect) ?? pieceByUid(selected);
   const selPiece = pieceByUid(selected);
 
+  /** 長押し（0.45秒）でカードの詳細を開く。指やマウスが動いたら取り消す */
+  const longPress = (uid: number | undefined) => ({
+    onPointerDown: (e: React.PointerEvent) => {
+      if (uid === undefined) return;
+      const timer = window.setTimeout(() => {
+        if (press.current) press.current.fired = true;
+        setPeek(uid);
+      }, 450);
+      press.current = { timer, x: e.clientX, y: e.clientY, fired: false };
+    },
+    onPointerMove: (e: React.PointerEvent) => {
+      const p = press.current;
+      if (p && !p.fired && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) {
+        clearTimeout(p.timer);
+        press.current = null;
+      }
+    },
+    onPointerUp: () => {
+      if (press.current && !press.current.fired) {
+        clearTimeout(press.current.timer);
+        press.current = null;
+      }
+    },
+    onPointerLeave: () => {
+      if (press.current && !press.current.fired) {
+        clearTimeout(press.current.timer);
+        press.current = null;
+      }
+    },
+    onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+  });
+  /** 長押しが成立した直後のクリックは無視する */
+  const swallowClick = () => {
+    if (press.current?.fired) {
+      press.current = null;
+      return true;
+    }
+    return false;
+  };
+
+  const board = useMemo(() => buildBoard(state), [state]);
+  const atkOf = (p: PieceState) => (p.pos ? effectiveAtk(r, state, board, p) : r.db.cards[p.cardId].atk);
+
   const choiceSet = new Set(pending?.kind === 'target' ? pending.request.candidates : []);
   const isChoice = (g: PieceState[]) => g.some((q) => choiceSet.has(q.uid));
 
@@ -344,10 +391,11 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
               <button
                 key={p.uid}
                 className={`hand-slot ${selected === p.uid ? 'selected' : ''} ${canDrop ? 'can' : ''} ${isChoice(g) ? 'choose' : ''}`}
-                onClick={() => onHand(p, g)}
+                onClick={() => !swallowClick() && onHand(p, g)}
                 onMouseEnter={() => setInspect(p.uid)}
+                {...longPress(p.uid)}
               >
-                <PieceView r={r} p={p} flipped={pl === top} small count={g.length} />
+                <PieceView r={r} p={p} flipped={pl === top} small count={g.length} atk={atkOf(p)} />
                 <span className="hand-hp">自傷{r.db.cards[p.cardId].hp}</span>
               </button>
             );
@@ -455,10 +503,11 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
                         key={x}
                         data-sq={`${x},${y}`}
                         className={`sq ${campCls} ${tk ? 'tgt tgt-' + tk : ''} ${selPiece?.pos && samePos(selPiece.pos, pos) ? 'sel' : ''} ${isLast ? 'last' : ''} ${occ && choiceSet.has(occ.uid) ? 'tgt-choose' : ''}`}
-                        onClick={() => onSquare(pos)}
+                        onClick={() => !swallowClick() && onSquare(pos)}
                         onMouseEnter={() => occ && setInspect(occ.uid)}
+                        {...longPress(occ?.uid)}
                       >
-                        {occ && <PieceView r={r} p={occ} flipped={occ.owner === top} />}
+                        {occ && <PieceView r={r} p={occ} flipped={occ.owner === top} atk={atkOf(occ)} />}
                         {tk === 'move' && <span className="dot" />}
                       </div>
                     );
@@ -512,7 +561,7 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
             {pending.kind === 'promote' ? (
               <>
                 <h3>成りますか？</h3>
-                <p className="dim">{selPiece ? r.db.cards[selPiece.cardId].special.text : ''}</p>
+                <p className="dim">{selPiece ? displayText(r.db.cards[selPiece.cardId].special.text) : ''}</p>
                 <div className="modal-btns">
                   {[true, false].map((pr) => {
                     const opts = pending.options.filter((m) => m.type === 'move' && m.promote === pr);
@@ -565,6 +614,19 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
                   1手戻す
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {peek !== null && pieceByUid(peek) && (
+        <div className="modal-back" onClick={() => setPeek(null)}>
+          <div className="modal peek" onClick={(e) => e.stopPropagation()}>
+            <CardView r={r} card={r.db.cards[pieceByUid(peek)!.cardId]} piece={pieceByUid(peek)} state={state} />
+            <div className="modal-btns">
+              <button className="primary" onClick={() => setPeek(null)}>
+                閉じる
+              </button>
             </div>
           </div>
         </div>

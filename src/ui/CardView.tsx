@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import type { CardData, GameState, PieceState, Rules } from '../engine';
 import { buildBoard, describeCard, effectiveAtk, isActive, promotedSet, statusTurns, unpromotedSet } from '../engine';
+import { attrLabel, displayText } from './attributes';
 
 const SPECIAL_LABEL = { leader: 'リーダー', awakening: '覚醒', enemy_camp: '敵陣' } as const;
 
@@ -21,7 +22,7 @@ export function CardView({ r, card, piece, state }: { r: Rules; card: CardData; 
         <span className={`cv-rarity rar-${card.rarity}`}>{card.rarity}</span>
         <span className="cv-piece">{card.piece}</span>
         <span className="cv-name">{card.name}</span>
-        <span className={`cv-attr attr-tag-${card.attribute}`}>{card.attribute}</span>
+        <span className={`cv-attr attr-tag-${card.attribute}`}>{attrLabel(card.attribute)}</span>
       </div>
       <div className="cv-stats">
         <div>
@@ -46,11 +47,11 @@ export function CardView({ r, card, piece, state }: { r: Rules; card: CardData; 
       )}
       <div className="cv-section">
         <div className="cv-label">能力</div>
-        <div className="cv-text">{card.ability ?? '—'}</div>
+        <div className="cv-text">{card.ability ? displayText(card.ability) : '—'}</div>
       </div>
       <div className="cv-section">
         <div className="cv-label">【{SPECIAL_LABEL[card.special.type]}】</div>
-        <div className="cv-text">{card.special.text}</div>
+        <div className="cv-text">{displayText(card.special.text)}</div>
       </div>
       <div className="cv-section cv-move">
         <div>
@@ -66,14 +67,14 @@ export function CardView({ r, card, piece, state }: { r: Rules; card: CardData; 
       {showInterp && (
         <ul className="cv-interp">
           {desc.ability.map((t, i) => (
-            <li key={'a' + i}>{t}</li>
+            <li key={'a' + i}>{displayText(t)}</li>
           ))}
           {desc.special.map((t, i) => (
-            <li key={'s' + i}>{t}</li>
+            <li key={'s' + i}>{displayText(t)}</li>
           ))}
           {(r.abilities[card.id]?.notes ?? []).map((t, i) => (
             <li key={'n' + i} className="note">
-              ※ {t}
+              ※ {displayText(t)}
             </li>
           ))}
         </ul>

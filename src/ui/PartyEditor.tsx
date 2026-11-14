@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { Party, Player, Rules, SlotId } from '../engine';
 import { PRESET_PARTIES, SLOTS, partyCost, partyHp, randomParty, validateParty } from '../engine';
 import { CardView } from './CardView';
+import { attrName } from './attributes';
 
 const sideName = (p: Player) => (p === 0 ? '先手' : '後手');
 
@@ -82,7 +83,7 @@ export function PartyPanel({
               <span className="slot-kind">{s.label}</span>
               <span className={`slot-rar rar-${c?.rarity}`}>{c?.rarity}</span>
               <span className="slot-name">{c?.name ?? '（未選択）'}</span>
-              <span className={`slot-attr attr-tag-${c?.attribute}`}>{c?.attribute}</span>
+              <span className={`slot-attr attr-tag-${c?.attribute}`}>{c ? attrName(c.attribute) : ''}</span>
               <span className="slot-num">HP{c?.hp}</span>
               <span className="slot-num">ATK{c?.atk}</span>
               <span className="slot-cost">{c?.cost}</span>
@@ -154,7 +155,7 @@ export function CardPicker({
                 >
                   <span className={`slot-rar rar-${c.rarity}`}>{c.rarity}</span>
                   <span className="slot-name">{c.name}</span>
-                  <span className={`slot-attr attr-tag-${c.attribute}`}>{c.attribute}</span>
+                  <span className={`slot-attr attr-tag-${c.attribute}`}>{attrName(c.attribute)}</span>
                   <span className="slot-num">HP{c.hp}</span>
                   <span className="slot-num">ATK{c.atk}</span>
                   <span className="slot-cost">{c.cost}</span>

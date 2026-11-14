@@ -1,6 +1,7 @@
 // イベント → ログの文章
 import type { GameEvent, Rules } from '../engine';
 import { posLabel } from '../engine';
+import { displayText } from './attributes';
 
 export interface LogLine {
   id: number;
@@ -38,7 +39,7 @@ export function eventToLog(r: Rules, ev: GameEvent): Omit<LogLine, 'id'> | null 
       return { text: `${name(ev.cardId)}が成った`, tone: 'ability', player: ev.player };
     case 'ability': {
       const label = { ability: '能力', awakening: '覚醒', enemy_camp: '敵陣', leader: 'リーダー' }[ev.kind];
-      return { text: `【${label}】${name(ev.cardId)}：${ev.text}`, tone: 'ability', player: ev.player };
+      return { text: `【${label}】${name(ev.cardId)}：${displayText(ev.text)}`, tone: 'ability', player: ev.player };
     }
     case 'status': {
       const what = ev.status === 'immobile' ? '行動不能' : ev.status === 'seal' ? '封印' : `ATK${(ev.value ?? 0) > 0 ? '+' : ''}${ev.value}%`;
