@@ -46,7 +46,9 @@ service cloud.firestore {
         // 手を指す：自分の手番に1手だけ足す（それまでの手は変えない）
         (resource.data.status == 'playing' && isPlayer() && fixedPlayers()
           && request.resource.data.moves.size() == resource.data.moves.size() + 1
-          && request.resource.data.moves[0:resource.data.moves.size()] == resource.data.moves
+          // 1手目は比べる手がない（moves[0:0] はエラーになるので分ける）
+          && (resource.data.moves.size() == 0
+              || request.resource.data.moves[0:resource.data.moves.size()] == resource.data.moves)
           && ((resource.data.moves.size() % 2 == 0) == (request.auth.uid == resource.data.senteUid))
           && request.resource.data.status in ['playing', 'finished'])
         ||
