@@ -1468,3 +1468,157 @@ button.danger {
   color: #3a2600;
   font-weight: bold;
 }
+
+/* ───── コマ一覧 ───── */
+.card-list-screen {
+  --sq: 52px;
+}
+.cl-filters {
+  max-width: 1200px;
+  margin: 12px auto 8px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cl-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cl-chips button {
+  min-width: 44px;
+  font-weight: bold;
+}
+.cl-chips button.on {
+  background: var(--accent);
+  color: #241a05;
+  border-color: var(--accent);
+}
+.cl-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cl-search {
+  flex: 1;
+  min-width: 160px;
+  width: auto;
+}
+.cl-table {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cl-head,
+.cl-row-item {
+  display: grid;
+  grid-template-columns: 64px 150px 48px 56px 56px 1fr 1.25fr;
+  gap: 10px;
+  align-items: center;
+}
+.cl-head {
+  font-size: 12px;
+  color: var(--dim);
+  padding: 4px 10px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 3;
+}
+.cl-row-item {
+  text-align: left;
+  padding: 8px 10px;
+  border-left-width: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.cl-row-item.attr-守 {
+  border-left-color: var(--def);
+}
+.cl-row-item.attr-攻 {
+  border-left-color: var(--atk);
+}
+.cl-row-item.attr-妨害 {
+  border-left-color: var(--dis);
+}
+.cl-piece-box {
+  width: var(--sq);
+  height: var(--sq);
+  display: grid;
+  place-items: center;
+}
+.cl-name {
+  display: flex;
+  flex-direction: column;
+}
+.cl-tags {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.cl-special {
+  color: var(--accent);
+  font-weight: bold;
+}
+.cl-move {
+  display: block;
+  color: var(--dim);
+  font-size: 11px;
+  margin-top: 2px;
+}
+.cl-label {
+  display: none;
+}
+@media (max-width: 760px) {
+  .cl-head {
+    display: none;
+  }
+  .cl-row-item {
+    grid-template-columns: 60px 1fr 1fr 1fr;
+    grid-template-areas:
+      'piece name name name'
+      'piece cost hp atk'
+      'ab ab ab ab'
+      'sp sp sp sp';
+    row-gap: 6px;
+  }
+  .cl-piece {
+    grid-area: piece;
+  }
+  .cl-name {
+    grid-area: name;
+  }
+  .cl-cost {
+    grid-area: cost;
+  }
+  .cl-hp {
+    grid-area: hp;
+  }
+  .cl-atk {
+    grid-area: atk;
+  }
+  .cl-ab {
+    grid-area: ab;
+  }
+  .cl-sp {
+    grid-area: sp;
+  }
+  .num {
+    text-align: left;
+  }
+  .cl-label {
+    display: inline;
+    color: var(--dim);
+    font-size: 11px;
+    margin-right: 4px;
+  }
+}

@@ -9,13 +9,14 @@ import { RuleSettings } from './ui/RuleSettings';
 import { AccountScreen } from './ui/AccountScreen';
 import { DeckScreen } from './ui/DeckScreen';
 import { OnlineLobby } from './ui/OnlineLobby';
+import { CardListScreen } from './ui/CardListScreen';
 import { devScenario } from './ui/devScenarios';
 import { DevRematchPreview } from './ui/DevRematchPreview';
 import { DevRerender } from './ui/DevRerender';
 import { displayName, useAuth } from './online/auth';
 import { useDecks } from './online/decks';
 
-type Screen = 'title' | 'party' | 'game' | 'account' | 'decks' | 'online';
+type Screen = 'title' | 'party' | 'game' | 'account' | 'decks' | 'online' | 'cards';
 
 export function App() {
   const dev = import.meta.env.DEV ? devScenario(location.hash) : null;
@@ -45,6 +46,7 @@ export function App() {
   }
   if (screen === 'account') return <AccountScreen user={user} onBack={() => setScreen(back)} />;
   if (screen === 'decks') return <DeckScreen r={onlineRules} uid={user?.uid ?? null} onBack={() => setScreen('title')} onLogin={() => goAccount('decks')} />;
+  if (screen === 'cards') return <CardListScreen r={onlineRules} onBack={() => setScreen('title')} />;
   if (screen === 'online') return <OnlineLobby r={onlineRules} user={user} onBack={() => setScreen('title')} onLogin={() => goAccount('online')} />;
   if (screen === 'party') {
     return (
@@ -82,9 +84,14 @@ export function App() {
           <button className="primary big" onClick={() => setScreen('online')}>
             オンライン対戦
           </button>
-          <button className="big" onClick={() => setScreen('decks')}>
-            マイデッキ
-          </button>
+          <div className="title-row">
+            <button className="big" onClick={() => setScreen('decks')}>
+              マイデッキ
+            </button>
+            <button className="big" onClick={() => setScreen('cards')}>
+              コマ一覧
+            </button>
+          </div>
           <button className="big" onClick={() => go(null)}>
             2人で対戦（同じ端末）
           </button>
