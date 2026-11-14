@@ -41,10 +41,25 @@ export interface RemoteInfo {
   names: [string, string];
 }
 
-export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: GameSetup; onExit: () => void; remote?: RemoteInfo }) {
-  const initial = useMemo(
-    () => (setup.initialState ? { state: setup.initialState, events: [] } : createGame(r, setup.parties)),
-    [r, setup],
+export function GameScreen({
+  r,
+  setup,
+  onExit,
+  remote,
+  resultExtra,
+}: {
+  r: Rules;
+  setup: GameSetup;
+  onExit: () => void;
+  remote?: RemoteInfo;
+  /** 対局が終わったときの画面に足すもの（オンラインの「もう一回対戦」など） */
+  resultExtra?: React.ReactNode;
+}) {
+  // 初期局面はこの画面を開いたときに1回だけ作る。
+  // 親が描き直されて setup が作り直されても、局面・HP表示・ログを初期状態に戻さない
+  // （戻すと、手が届くたびにHPが満タンに戻ってから減り直して見える）。新しい対局は key を変えて開き直す。
+  const [initial] = useState(() =>
+    setup.initialState ? { state: setup.initialState, events: [] as GameEvent[] } : createGame(r, setup.parties),
   );
   const [state, setState] = useState<GameState>(initial.state);
   const [displayHp, setDisplayHp] = useState<[number, number]>([initial.state.players[0].hp, initial.state.players[1].hp]);
@@ -106,7 +121,7 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
     setLog([]);
     void playEvents(initial.events, initial.state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initial]);
+  }, []);
 
   const commit = useCallback(
     async (move: Move, fromRemote = false) => {
@@ -472,6 +487,11 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
               1手戻す
             </button>
           )}
+          {state.result && hideResult && (
+            <button className="primary" onClick={() => setHideResult(false)}>
+              結果を見る
+            </button>
+          )}
           <button onClick={doResign} disabled={busy || !!state.result}>
             投了
           </button>
@@ -604,6 +624,7 @@ export function GameScreen({ r, setup, onExit, remote }: { r: Rules; setup: Game
               {remote ? (state.result.winner === remote.me ? 'あなたの勝ち！' : 'あなたの負け…') : `${sideName(state.result.winner)}の勝ち！`}
             </h2>
             <p>{state.result.detail}</p>
+            {resultExtra}
             <div className="modal-btns">
               <button className="primary" onClick={onExit}>
                 メニューへ

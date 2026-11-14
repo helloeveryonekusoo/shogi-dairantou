@@ -1394,3 +1394,77 @@ button.danger {
   color: #ff9b8b;
   font-size: 13px;
 }
+
+/* もう一回対戦 */
+.rematch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 6px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.rematch p {
+  margin: 0;
+}
+.rematch select {
+  width: 100%;
+  max-width: 320px;
+}
+.rematch-hot {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* 歩の並び（編成画面） */
+.pawn-order {
+  --sq: min(58px, 15vw);
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.pawn-order-head {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.pawn-cells {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  background: #5a3c18;
+  padding: 4px;
+  border-radius: 6px;
+}
+.pawn-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 2px 4px;
+  background: linear-gradient(135deg, var(--wood1), var(--wood2));
+  border: 2px solid transparent;
+  border-radius: 4px;
+}
+.pawn-cell.sel {
+  border-color: #2a7cff;
+  box-shadow: 0 0 0 2px #2a7cff;
+}
+.pawn-piece {
+  width: var(--sq);
+  height: var(--sq);
+  display: grid;
+  place-items: center;
+}
+.pawn-file {
+  font-size: 11px;
+  color: #3a2600;
+  font-weight: bold;
+}

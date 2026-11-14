@@ -4,8 +4,9 @@
 import { deleteDoc, doc, onSnapshot, runTransaction, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import type { GameResult, Move, Party, Player } from '../engine';
+import { type RematchFields, nextGameFields, rematchPhase } from './rematch';
 
-export interface Room {
+export interface Room extends RematchFields {
   code: string;
   status: 'waiting' | 'playing' | 'finished';
   hostUid: string;
@@ -46,6 +47,10 @@ export async function createRoom(uid: string, name: string, party: Party): Promi
         senteUid: null,
         moves: [],
         result: null,
+        gameNo: 1,
+        rematchVotes: [],
+        nextParties: {},
+        declined: null,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -111,6 +116,38 @@ export async function resignRoom(code: string, result: GameResult) {
     tx.update(ref, { status: 'finished', result: clean(result), updatedAt: serverTimestamp() });
   });
 }
+
+// ───────── もう一回対戦 ─────────
+
+async function updateFinished(code: string, fn: (r: Room) => Record<string, unknown> | null) {
+  const ref = doc(db, 'rooms', code);
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) throw new Error('部屋が見つかりません');
+    const r = snap.data() as Room;
+    if (r.status !== 'finished') return; // もう次の対局が始まっている
+    const patch = fn(r);
+    if (patch) tx.update(ref, { ...patch, updatedAt: serverTimestamp() });
+  });
+}
+
+/** 「もう一回対戦」を押す */
+export const voteRematch = (code: string, uid: string) =>
+  updateFinished(code, (r) => {
+    const votes = r.rematchVotes ?? [];
+    return votes.includes(uid) ? null : { rematchVotes: [...votes, uid] };
+  });
+
+/** 次の対局のデッキを決める */
+export const chooseNextParty = (code: string, uid: string, party: Party) =>
+  updateFinished(code, (r) => (rematchPhase(r, uid) === 'chooseDeck' ? { nextParties: { ...(r.nextParties ?? {}), [uid]: clean(party) } } : null));
+
+/** 2人ともデッキを選んだら、次の対局を始める（どちらの端末が呼んでもよい。先に通った方だけが有効） */
+export const startRematch = (code: string, uid: string) =>
+  updateFinished(code, (r) => (rematchPhase(r, uid) === 'ready' ? clean(nextGameFields(r)) : null));
+
+/** 再戦しないで退出する（相手に知らせる） */
+export const declineRematch = (code: string, uid: string) => updateFinished(code, (r) => (r.declined ? null : { declined: uid }));
 
 /** 待っている部屋をやめる */
 export const cancelRoom = (code: string) => deleteDoc(doc(db, 'rooms', code));

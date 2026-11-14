@@ -5,7 +5,7 @@ import { makeRules } from '../data';
 import type { GameSetup } from './GameScreen';
 
 export function devScenario(hash: string): GameSetup | null {
-  if (hash !== '#choice') return null;
+  if (hash !== '#choice' && hash !== '#rerender') return null;
   const r = makeRules();
   const parties = [PRESET_PARTIES[2].party, PRESET_PARTIES[1].party] as GameSetup['parties'];
   const s: GameState = createGame(r, parties).state;

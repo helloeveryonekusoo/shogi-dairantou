@@ -5,7 +5,21 @@ import type { Party, Rules } from '../engine';
 import { PRESET_PARTIES, validateParty } from '../engine';
 import { displayName } from '../online/auth';
 import { useDecks } from '../online/decks';
-import { type Room, cancelRoom, createRoom, joinRoom, mySide, normalizeCode, sides, watchRoom } from '../online/rooms';
+import {
+  type Room,
+  cancelRoom,
+  chooseNextParty,
+  createRoom,
+  declineRematch,
+  joinRoom,
+  mySide,
+  normalizeCode,
+  sides,
+  startRematch,
+  voteRematch,
+  watchRoom,
+} from '../online/rooms';
+import { rematchPhase } from '../online/rematch';
 import { GameScreen } from './GameScreen';
 
 const LAST_ROOM_KEY = 'shogi-dairantou:lastRoom';
@@ -78,6 +92,27 @@ export function OnlineLobby({ r, user, onBack, onLogin }: { r: Rules; user: User
     );
   }, [code]);
 
+  // 対局の設定は「部屋・何局目」が変わったときだけ作り直す
+  // （手が届くたびに作り直すと、ログが消えたり部屋の見張りがやり直しになったりする）
+  const gameKey = code && room && room.status !== 'waiting' && room.guestUid ? `${code}-${room.gameNo ?? 1}` : null;
+  const game = useMemo(() => {
+    if (!gameKey || !room || !uid || !code) return null;
+    const s = sides(room);
+    if (!s) return null;
+    return {
+      setup: { parties: s.parties, cpu: null, cpuLevel: 'normal' as const },
+      remote: { code, me: mySide(room, uid), names: s.names },
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameKey, uid]);
+
+  // 2人ともデッキを選んだら次の対局を始める（両方の端末が試み、先に通った方が有効）
+  useEffect(() => {
+    if (code && room && uid && rematchPhase(room, uid) === 'ready') {
+      startRematch(code, uid).catch((e) => setMsg(`次の対局を始められませんでした：${(e as Error).message}`));
+    }
+  }, [room, code, uid]);
+
   if (!user || !uid) {
     return (
       <div className="simple-screen">
@@ -109,16 +144,17 @@ export function OnlineLobby({ r, user, onBack, onLogin }: { r: Rules; user: User
   };
 
   // 対局
-  const s = room && room.status !== 'waiting' ? sides(room) : null;
-  if (code && room && s) {
-    const me = mySide(room, uid);
+  if (code && room && game) {
     return (
       <GameScreen
-        key={code}
+        key={gameKey}
         r={r}
-        setup={{ parties: s.parties, cpu: null, cpuLevel: 'normal' }}
-        remote={{ code, me, names: s.names }}
+        setup={game.setup}
+        remote={game.remote}
+        resultExtra={<RematchPanel r={r} room={room} uid={uid} code={code} options={options} defaultKey={chosen?.key} />}
         onExit={() => {
+          // 終わった対局から出るときは、相手に「再戦しない」と知らせる
+          if (room.status === 'finished') declineRematch(code, uid).catch(() => undefined);
           setCode(null);
           setRoom(null);
           saveLast(null);
@@ -230,6 +266,80 @@ export function OnlineLobby({ r, user, onBack, onLogin }: { r: Rules; user: User
         </div>
         {msg && <p className="err-text">{msg}</p>}
       </div>
+    </div>
+  );
+}
+
+/** 対局が終わったあとの「もう一回対戦」 */
+export function RematchPanel({
+  r,
+  room,
+  uid,
+  code,
+  options,
+  defaultKey,
+}: {
+  r: Rules;
+  room: Room;
+  uid: string;
+  code: string;
+  options: { key: string; name: string; party: Party }[];
+  defaultKey?: string;
+}) {
+  const [deckKey, setDeckKey] = useState(defaultKey ?? options[0]?.key);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const phase = rematchPhase(room, uid);
+  const chosen = options.find((o) => o.key === deckKey) ?? options[0];
+  const errors = chosen ? validateParty(r.db, chosen.party, r.config) : ['デッキがありません'];
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    setErr(null);
+    try {
+      await fn();
+    } catch (e) {
+      setErr((e as Error).message ?? String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+  if (phase === 'notFinished') return null;
+  return (
+    <div className="rematch">
+      {phase === 'declined' && <p className="dim">{room.declined === uid ? '再戦しないことにしました' : '相手は退出しました'}</p>}
+      {phase === 'askMe' && (
+        <button className="primary big" disabled={busy} onClick={() => run(() => voteRematch(code, uid))}>
+          もう一回対戦
+        </button>
+      )}
+      {phase === 'opponentWants' && (
+        <>
+          <p className="rematch-hot">相手がもう一回対戦したがっています！</p>
+          <button className="primary big" disabled={busy} onClick={() => run(() => voteRematch(code, uid))}>
+            もう一回対戦する
+          </button>
+        </>
+      )}
+      {phase === 'waitOpponentVote' && <p className="dim">相手の返事を待っています…</p>}
+      {phase === 'chooseDeck' && (
+        <>
+          <p>2人とも同意しました。次の対局のデッキを選んでください（先手・後手は入れ替わります）。</p>
+          <select value={chosen?.key} onChange={(e) => setDeckKey(e.target.value)}>
+            {options.map((o) => (
+              <option key={o.key} value={o.key}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+          {errors.length > 0 && <p className="err-text">このデッキは使えません：{errors[0]}</p>}
+          <button className="primary" disabled={busy || errors.length > 0 || !chosen} onClick={() => run(() => chooseNextParty(code, uid, chosen!.party))}>
+            このデッキで対戦
+          </button>
+        </>
+      )}
+      {phase === 'waitOpponentDeck' && <p className="dim">相手がデッキを選んでいます…</p>}
+      {phase === 'ready' && <p className="dim">次の対局を始めています…</p>}
+      {err && <p className="err-text">{err}</p>}
     </div>
   );
 }

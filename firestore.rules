@@ -22,6 +22,11 @@ service cloud.firestore {
         return unchanged('hostUid') && unchanged('hostParty') && unchanged('guestUid')
           && unchanged('guestParty') && unchanged('senteUid') && unchanged('code');
       }
+      function finishedPlayer() { return resource.data.status == 'finished' && isPlayer(); }
+      function onlyChanged(keys) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys); }
+      function votes() { return resource.data.get('rematchVotes', []); }
+      function nextParties() { return resource.data.get('nextParties', {}); }
+      function bothVoted() { return votes().hasAll([resource.data.hostUid, resource.data.guestUid]); }
 
       allow read: if signedIn();
 
@@ -56,6 +61,35 @@ service cloud.firestore {
         (resource.data.status == 'playing' && isPlayer() && fixedPlayers()
           && unchanged('moves')
           && request.resource.data.status == 'finished')
+        ||
+        // もう一回対戦：「もう一回」を押す（自分の uid を1つ足すだけ）
+        (finishedPlayer() && onlyChanged(['rematchVotes', 'updatedAt'])
+          && !(request.auth.uid in votes())
+          && request.resource.data.rematchVotes.size() == votes().size() + 1
+          && request.resource.data.rematchVotes.hasAll(votes())
+          && request.auth.uid in request.resource.data.rematchVotes)
+        ||
+        // もう一回対戦：2人とも同意したあと、自分の次のデッキを決める（自分の分だけ）
+        (finishedPlayer() && bothVoted() && onlyChanged(['nextParties', 'updatedAt'])
+          && request.resource.data.nextParties.diff(nextParties()).affectedKeys().hasOnly([request.auth.uid])
+          && request.resource.data.nextParties[request.auth.uid] is map
+          && request.resource.data.nextParties[request.auth.uid].size() == 12)
+        ||
+        // もう一回対戦：2人ともデッキを決めたら、選んだデッキで次の対局を始める
+        (finishedPlayer() && bothVoted()
+          && nextParties().keys().hasAll([resource.data.hostUid, resource.data.guestUid])
+          && request.resource.data.status == 'playing'
+          && unchanged('hostUid') && unchanged('guestUid') && unchanged('code')
+          && request.resource.data.hostParty == nextParties()[resource.data.hostUid]
+          && request.resource.data.guestParty == nextParties()[resource.data.guestUid]
+          && request.resource.data.senteUid in [resource.data.hostUid, resource.data.guestUid]
+          && request.resource.data.moves.size() == 0
+          && request.resource.data.result == null
+          && request.resource.data.gameNo == resource.data.get('gameNo', 1) + 1)
+        ||
+        // もう一回対戦しないで退出する
+        (finishedPlayer() && onlyChanged(['declined', 'updatedAt'])
+          && request.resource.data.declined == request.auth.uid)
       );
 
       // 始まる前の部屋は、ホストが消せる

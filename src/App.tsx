@@ -10,6 +10,8 @@ import { AccountScreen } from './ui/AccountScreen';
 import { DeckScreen } from './ui/DeckScreen';
 import { OnlineLobby } from './ui/OnlineLobby';
 import { devScenario } from './ui/devScenarios';
+import { DevRematchPreview } from './ui/DevRematchPreview';
+import { DevRerender } from './ui/DevRerender';
 import { displayName, useAuth } from './online/auth';
 import { useDecks } from './online/decks';
 
@@ -36,6 +38,8 @@ export function App() {
     setScreen('account');
   };
 
+  if (import.meta.env.DEV && location.hash === '#rematch') return <DevRematchPreview r={onlineRules} />;
+  if (import.meta.env.DEV && location.hash === '#rerender' && setup) return <DevRerender r={rules} setup={setup} />;
   if (screen === 'game' && setup) {
     return <GameScreen r={rules} setup={setup} onExit={() => setScreen('party')} />;
   }
