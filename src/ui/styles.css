@@ -294,13 +294,16 @@ button.big {
   margin: 8px 0 0;
   padding-left: 18px;
 }
+/* 高さは固定する。カードによって右の詳細の長さが変わっても、ウィンドウが伸び縮みして
+   一覧がずれ、カーソルの下の行が入れ替わり続ける（ぶれる）のを防ぐ */
 .picker {
   width: min(960px, 96vw);
-  max-height: 92vh;
+  height: min(640px, 92vh);
   display: flex;
   flex-direction: column;
 }
 .picker-body {
+  flex: 1;
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 12px;
@@ -312,11 +315,11 @@ button.big {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 70vh;
+  min-height: 0;
 }
 .picker-preview {
   overflow-y: auto;
-  max-height: 70vh;
+  min-height: 0;
 }
 @media (max-width: 720px) {
   .picker-body {
