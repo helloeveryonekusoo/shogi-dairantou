@@ -1,0 +1,63 @@
+rules_version = '2';
+// 将棋大乱闘のデータベースのルール
+//   users/{uid}/decks/{deckId} … 本人だけが読み書きできるデッキ
+//   rooms/{部屋コード}         … オンライン対戦の部屋（ログインしている人は読める。書けるのは参加者だけ）
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{uid}/decks/{deckId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 40
+        && request.resource.data.party is map
+        && request.resource.data.party.size() == 12;
+    }
+
+    match /rooms/{code} {
+      function signedIn() { return request.auth != null; }
+      function unchanged(f) { return request.resource.data[f] == resource.data[f]; }
+      function isPlayer() { return request.auth.uid == resource.data.hostUid || request.auth.uid == resource.data.guestUid; }
+      function fixedPlayers() {
+        return unchanged('hostUid') && unchanged('hostParty') && unchanged('guestUid')
+          && unchanged('guestParty') && unchanged('senteUid') && unchanged('code');
+      }
+
+      allow read: if signedIn();
+
+      // 部屋を作る：自分がホストで、待ち状態・手は空
+      allow create: if signedIn()
+        && request.resource.data.hostUid == request.auth.uid
+        && request.resource.data.status == 'waiting'
+        && request.resource.data.guestUid == null
+        && request.resource.data.moves.size() == 0
+        && request.resource.data.code == code;
+
+      allow update: if signedIn() && (
+        // 参加する：待ち状態の部屋に、自分がゲストとして入る（先手はホストかゲストのどちらか）
+        (resource.data.status == 'waiting'
+          && resource.data.guestUid == null
+          && request.auth.uid != resource.data.hostUid
+          && request.resource.data.guestUid == request.auth.uid
+          && request.resource.data.status == 'playing'
+          && request.resource.data.senteUid in [resource.data.hostUid, request.auth.uid]
+          && unchanged('hostUid') && unchanged('hostParty') && unchanged('moves') && unchanged('code'))
+        ||
+        // 手を指す：自分の手番に1手だけ足す（それまでの手は変えない）
+        (resource.data.status == 'playing' && isPlayer() && fixedPlayers()
+          && request.resource.data.moves.size() == resource.data.moves.size() + 1
+          && request.resource.data.moves[0:resource.data.moves.size()] == resource.data.moves
+          && ((resource.data.moves.size() % 2 == 0) == (request.auth.uid == resource.data.senteUid))
+          && request.resource.data.status in ['playing', 'finished'])
+        ||
+        // 投了：手は変えずに終わらせる
+        (resource.data.status == 'playing' && isPlayer() && fixedPlayers()
+          && unchanged('moves')
+          && request.resource.data.status == 'finished')
+      );
+
+      // 始まる前の部屋は、ホストが消せる
+      allow delete: if signedIn() && resource.data.hostUid == request.auth.uid && resource.data.status == 'waiting';
+    }
+  }
+}

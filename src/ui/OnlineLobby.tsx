@@ -1,0 +1,235 @@
+// オンライン対戦：部屋を作る／部屋コードで参加する／相手を待つ → 対局
+import { useEffect, useMemo, useState } from 'react';
+import type { User } from 'firebase/auth';
+import type { Party, Rules } from '../engine';
+import { PRESET_PARTIES, validateParty } from '../engine';
+import { displayName } from '../online/auth';
+import { useDecks } from '../online/decks';
+import { type Room, cancelRoom, createRoom, joinRoom, mySide, normalizeCode, sides, watchRoom } from '../online/rooms';
+import { GameScreen } from './GameScreen';
+
+const LAST_ROOM_KEY = 'shogi-dairantou:lastRoom';
+const saveLast = (code: string | null) => {
+  try {
+    if (code) localStorage.setItem(LAST_ROOM_KEY, code);
+    else localStorage.removeItem(LAST_ROOM_KEY);
+  } catch {
+    /* 保存できなくても困らない */
+  }
+};
+const loadLast = () => {
+  try {
+    return localStorage.getItem(LAST_ROOM_KEY);
+  } catch {
+    return null;
+  }
+};
+
+export function OnlineLobby({ r, user, onBack, onLogin }: { r: Rules; user: User | null; onBack: () => void; onLogin: () => void }) {
+  const uid = user?.uid ?? null;
+  const { decks } = useDecks(uid);
+  const [deckKey, setDeckKey] = useState('p:0');
+  const [codeInput, setCodeInput] = useState('');
+  const [code, setCode] = useState<string | null>(null);
+  const [room, setRoom] = useState<Room | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [resume, setResume] = useState<string | null>(null);
+
+  // 使えるデッキ（マイデッキ＋おすすめ）
+  const options = useMemo(
+    () => [
+      ...decks.map((d) => ({ key: `d:${d.id}`, name: d.name, party: d.party })),
+      ...PRESET_PARTIES.map((p, i) => ({ key: `p:${i}`, name: `（おすすめ）${p.name}`, party: p.party })),
+    ],
+    [decks],
+  );
+  useEffect(() => {
+    if (decks.length > 0 && deckKey === 'p:0') setDeckKey(`d:${decks[0].id}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [decks.length]);
+  const chosen = options.find((o) => o.key === deckKey) ?? options[0];
+  const deckErrors = chosen ? validateParty(r.db, chosen.party, r.config) : ['デッキがありません'];
+
+  // 対局中に閉じた部屋があれば「続きから」を出す
+  useEffect(() => {
+    const last = loadLast();
+    if (!uid || !last) return;
+    return watchRoom(last, (rm) => {
+      if (rm && rm.status === 'playing' && (rm.hostUid === uid || rm.guestUid === uid)) setResume(last);
+      else setResume(null);
+    });
+  }, [uid]);
+
+  // 入っている部屋を見張る
+  useEffect(() => {
+    if (!code) return;
+    return watchRoom(
+      code,
+      (rm) => {
+        setRoom(rm);
+        if (!rm) {
+          setMsg('部屋がなくなりました');
+          setCode(null);
+          saveLast(null);
+        }
+      },
+      (e) => setMsg(`通信エラー：${e.message}`),
+    );
+  }, [code]);
+
+  if (!user || !uid) {
+    return (
+      <div className="simple-screen">
+        <header className="screen-head">
+          <button onClick={onBack}>← 戻る</button>
+          <h2>オンライン対戦</h2>
+          <span />
+        </header>
+        <div className="form-box center">
+          <p>オンライン対戦には、ログインが必要です（無料）。</p>
+          <button className="primary" onClick={onLogin}>
+            ログイン／新規登録
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      await fn();
+    } catch (e) {
+      setMsg((e as Error).message ?? String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // 対局
+  const s = room && room.status !== 'waiting' ? sides(room) : null;
+  if (code && room && s) {
+    const me = mySide(room, uid);
+    return (
+      <GameScreen
+        key={code}
+        r={r}
+        setup={{ parties: s.parties, cpu: null, cpuLevel: 'normal' }}
+        remote={{ code, me, names: s.names }}
+        onExit={() => {
+          setCode(null);
+          setRoom(null);
+          saveLast(null);
+        }}
+      />
+    );
+  }
+
+  // 相手待ち
+  if (code && room?.status === 'waiting') {
+    return (
+      <div className="simple-screen">
+        <header className="screen-head">
+          <span />
+          <h2>相手を待っています</h2>
+          <span />
+        </header>
+        <div className="form-box center">
+          <p>この部屋コードを相手に伝えてください</p>
+          <div className="room-code">{code}</div>
+          <button onClick={() => navigator.clipboard?.writeText(code).then(() => setMsg('コピーしました'))}>コードをコピー</button>
+          <p className="dim small">デッキ：{room.hostParty && chosen?.name}</p>
+          <button
+            className="link-btn"
+            onClick={() =>
+              run(async () => {
+                await cancelRoom(code);
+                setCode(null);
+                setRoom(null);
+                saveLast(null);
+              })
+            }
+          >
+            部屋を閉じる
+          </button>
+          {msg && <p className="ok-text">{msg}</p>}
+        </div>
+      </div>
+    );
+  }
+
+  const party: Party | undefined = chosen?.party;
+  return (
+    <div className="simple-screen">
+      <header className="screen-head">
+        <button onClick={onBack}>← 戻る</button>
+        <h2>オンライン対戦</h2>
+        <span className="dim">{displayName(user)}</span>
+      </header>
+      <div className="form-box">
+        {resume && (
+          <div className="resume">
+            対局中の部屋があります（{resume}）
+            <button className="primary" onClick={() => setCode(resume)}>
+              続きから
+            </button>
+          </div>
+        )}
+        <label className="field">
+          使うデッキ
+          <select value={chosen?.key} onChange={(e) => setDeckKey(e.target.value)}>
+            {options.map((o) => (
+              <option key={o.key} value={o.key}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {deckErrors.length > 0 && <p className="err-text">このデッキは使えません：{deckErrors[0]}</p>}
+
+        <h3>部屋を作る</h3>
+        <p className="dim small">部屋コードが出るので、対戦相手に伝えます。先手・後手はランダムです。</p>
+        <button
+          className="primary"
+          disabled={busy || deckErrors.length > 0 || !party}
+          onClick={() =>
+            run(async () => {
+              const c = await createRoom(uid, displayName(user), party!);
+              setCode(c);
+              saveLast(c);
+            })
+          }
+        >
+          部屋を作る
+        </button>
+
+        <h3>部屋コードで参加する</h3>
+        <div className="join-row">
+          <input
+            value={codeInput}
+            placeholder="例：K7QX2M"
+            maxLength={8}
+            onChange={(e) => setCodeInput(normalizeCode(e.target.value))}
+            className="code-input"
+          />
+          <button
+            className="primary"
+            disabled={busy || codeInput.length < 6 || deckErrors.length > 0 || !party}
+            onClick={() =>
+              run(async () => {
+                await joinRoom(codeInput, uid, displayName(user), party!);
+                setCode(codeInput);
+                saveLast(codeInput);
+              })
+            }
+          >
+            参加する
+          </button>
+        </div>
+        {msg && <p className="err-text">{msg}</p>}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,1077 @@
+{
+  "version": "0.1",
+  "note": "能力テキストは日本語の仕様。実装時に効果データ（トリガー・対象・効果）へ構造化すること。",
+  "cards": [
+    {
+      "id": "king_01",
+      "piece": "王",
+      "name": "エリザベス1世",
+      "rarity": "S",
+      "attribute": "守",
+      "cost": 5,
+      "hp": 6600,
+      "atk": 1400,
+      "ability": "王の周り8マスにいる味方が取られたとき、取った相手に1000ダメージ",
+      "special": {
+        "type": "leader",
+        "text": "味方の駒が取られたときに受ける撃破ダメージ−10%"
+      },
+      "move_before": "王の動き。1手番に1回、移動の代わりに隣の味方と位置を入れ替えられる",
+      "move_after": "成らない"
+    },
+    {
+      "id": "king_02",
+      "piece": "王",
+      "name": "マリア・テレジア",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 5800,
+      "atk": 1300,
+      "ability": "自分の手番開始時、王が自陣にいればHP300回復",
+      "special": {
+        "type": "leader",
+        "text": "守属性の駒が撃破したとき、HP400回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "king_03",
+      "piece": "王",
+      "name": "ナポレオン",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 4000,
+      "atk": 1900,
+      "ability": "王が撃破したとき、追加で1500ダメージ",
+      "special": {
+        "type": "leader",
+        "text": "攻属性の駒のATK+10%"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "king_04",
+      "piece": "王",
+      "name": "クレオパトラ",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 5000,
+      "atk": 1500,
+      "ability": "王手をかけられたとき、王手をかけた駒を1手番行動不能にする（1試合1回）",
+      "special": {
+        "type": "leader",
+        "text": "相手が駒を打つときの自傷ダメージ+10%"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "king_05",
+      "piece": "王",
+      "name": "チンギス・ハン",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 3400,
+      "atk": 1400,
+      "ability": null,
+      "special": {
+        "type": "leader",
+        "text": "攻属性の駒のATK+5%"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "king_06",
+      "piece": "王",
+      "name": "ツタンカーメン",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 4000,
+      "atk": 1200,
+      "ability": null,
+      "special": {
+        "type": "leader",
+        "text": "妨害属性の能力によるダメージ+10%"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "rook_01",
+      "piece": "飛",
+      "name": "アレクサンドロス",
+      "rarity": "S",
+      "attribute": "攻",
+      "cost": 5,
+      "hp": 2900,
+      "atk": 5000,
+      "ability": "縦に3マス以上動いて撃破したとき、追加で1500ダメージ",
+      "special": {
+        "type": "awakening",
+        "text": "竜になったとき、同じ筋・同じ段にいる敵1体につき800ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "竜の動き。さらに縦横の移動で味方の駒を1枚だけ飛び越えられる"
+    },
+    {
+      "id": "rook_02",
+      "piece": "飛",
+      "name": "レオニダス",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 3400,
+      "atk": 3200,
+      "ability": "自陣にいる間、自陣内の味方が取られたときの撃破ダメージ−15%",
+      "special": {
+        "type": "awakening",
+        "text": "HP2000回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "竜（将棋どおり）"
+    },
+    {
+      "id": "rook_03",
+      "piece": "飛",
+      "name": "カエサル",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 2600,
+      "atk": 4600,
+      "ability": "3マス以上動いて撃破したとき、その撃破ダメージ+20%",
+      "special": {
+        "type": "awakening",
+        "text": "2500ダメージ"
+      },
+      "move_before": "飛の動き。ただし横は2マスまで",
+      "move_after": "竜（将棋どおり）"
+    },
+    {
+      "id": "rook_04",
+      "piece": "飛",
+      "name": "ハンニバル",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 3000,
+      "atk": 3800,
+      "ability": "この駒の縦の利きにいる敵は、能力が発動しない",
+      "special": {
+        "type": "awakening",
+        "text": "竜になったとき、隣の敵1体を2手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "竜（将棋どおり）"
+    },
+    {
+      "id": "rook_05",
+      "piece": "飛",
+      "name": "ウェリントン",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 2800,
+      "atk": 2600,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP1000回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "竜（将棋どおり）"
+    },
+    {
+      "id": "rook_06",
+      "piece": "飛",
+      "name": "ドレーク",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 2400,
+      "atk": 3000,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "前方で一番近い敵1体を1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "竜（将棋どおり）"
+    },
+    {
+      "id": "bishop_01",
+      "piece": "角",
+      "name": "ダ・ヴィンチ",
+      "rarity": "S",
+      "attribute": "妨害",
+      "cost": 5,
+      "hp": 3200,
+      "atk": 4000,
+      "ability": "移動したとき、通り抜けた斜線上の敵すべてを1手番封印する",
+      "special": {
+        "type": "awakening",
+        "text": "馬になったとき、相手の持ち駒1枚を除外する（盤に戻らない）"
+      },
+      "move_before": "角の動き＋前に1マス",
+      "move_after": "斜めに何マスでも＋前後に桂馬の跳び（縦横の1マス移動はできない）"
+    },
+    {
+      "id": "bishop_02",
+      "piece": "角",
+      "name": "ナイチンゲール",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 3400,
+      "atk": 3000,
+      "ability": "この駒の斜めの利きにいる味方は、取られたときの撃破ダメージ−20%",
+      "special": {
+        "type": "awakening",
+        "text": "HP1500回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "馬（将棋どおり）"
+    },
+    {
+      "id": "bishop_03",
+      "piece": "角",
+      "name": "ロビン・フッド",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 2400,
+      "atk": 4200,
+      "ability": "撃破したとき、同じ斜線のさらに先にいる最初の敵1体につき1000ダメージ（貫通）",
+      "special": {
+        "type": "awakening",
+        "text": "2000ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "馬（将棋どおり）"
+    },
+    {
+      "id": "bishop_04",
+      "piece": "角",
+      "name": "チェーザレ・ボルジア",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 3000,
+      "atk": 3500,
+      "ability": "撃破したとき、相手に毒（相手の手番開始時に400ダメージ、3手番）",
+      "special": {
+        "type": "awakening",
+        "text": "相手に毒（相手の手番開始時に600ダメージ、3手番）"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "馬（将棋どおり）"
+    },
+    {
+      "id": "bishop_05",
+      "piece": "角",
+      "name": "シュバイツァー",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 2800,
+      "atk": 2400,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP1000回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "馬（将棋どおり）"
+    },
+    {
+      "id": "bishop_06",
+      "piece": "角",
+      "name": "ウィリアム・ウォレス",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 2000,
+      "atk": 3200,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "1500ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "馬（将棋どおり）"
+    },
+    {
+      "id": "gold_01",
+      "piece": "金",
+      "name": "ジャンヌ・ダルク",
+      "rarity": "S",
+      "attribute": "守",
+      "cost": 5,
+      "hp": 3900,
+      "atk": 2400,
+      "ability": "王の隣にいる間、味方が取られたときの撃破ダメージ−20%",
+      "special": {
+        "type": "enemy_camp",
+        "text": "敵陣に入るたび、HP1500回復"
+      },
+      "move_before": "金の動き。王の隣にいるとき、1手番に1回、移動の代わりに王と位置を入れ替えられる",
+      "move_after": "成らない"
+    },
+    {
+      "id": "gold_02",
+      "piece": "金",
+      "name": "ワシントン",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 3200,
+      "atk": 2200,
+      "ability": "隣の味方が取られたとき、取った相手に800ダメージ",
+      "special": {
+        "type": "enemy_camp",
+        "text": "敵陣に入るたび、HP1000回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "gold_03",
+      "piece": "金",
+      "name": "サラディン",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 2400,
+      "atk": 3000,
+      "ability": "撃破したとき、追加で800ダメージ",
+      "special": {
+        "type": "enemy_camp",
+        "text": "敵陣に入るたび、1200ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "gold_04",
+      "piece": "金",
+      "name": "ビスマルク",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 2700,
+      "atk": 2500,
+      "ability": "隣の敵の駒は横に動けない",
+      "special": {
+        "type": "enemy_camp",
+        "text": "敵陣に入るたび、隣の敵1体を1手番行動不能にする"
+      },
+      "move_before": "金の動き＋後ろ斜め1マス（王の動き）",
+      "move_after": "成らない"
+    },
+    {
+      "id": "gold_05",
+      "piece": "金",
+      "name": "マルコ・ポーロ",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 1900,
+      "atk": 2400,
+      "ability": null,
+      "special": {
+        "type": "enemy_camp",
+        "text": "敵陣に入るたび、800ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "gold_06",
+      "piece": "金",
+      "name": "マキャヴェッリ",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 2200,
+      "atk": 2100,
+      "ability": null,
+      "special": {
+        "type": "enemy_camp",
+        "text": "敵陣に入るたび、相手が次に駒を打つときの自傷ダメージ+500"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成らない"
+    },
+    {
+      "id": "silver_01",
+      "piece": "銀",
+      "name": "ダルタニャン",
+      "rarity": "S",
+      "attribute": "攻",
+      "cost": 5,
+      "hp": 2700,
+      "atk": 3700,
+      "ability": "撃破した後、同じ手番のうちに斜め後ろへ1マス下がれる（ヒット＆アウェイ）",
+      "special": {
+        "type": "awakening",
+        "text": "成ったとき、隣の敵1体につき700ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "銀の動き＋横1マス（成銀にはならない）"
+    },
+    {
+      "id": "silver_02",
+      "piece": "銀",
+      "name": "ガンディー",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 3200,
+      "atk": 2400,
+      "ability": "取られたとき、取った駒のATK−30%（2手番）",
+      "special": {
+        "type": "awakening",
+        "text": "HP1200回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成銀（金の動き）"
+    },
+    {
+      "id": "silver_03",
+      "piece": "銀",
+      "name": "ブルース・リー",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 2400,
+      "atk": 3200,
+      "ability": "斜め前から撃破したとき、追加で1000ダメージ",
+      "special": {
+        "type": "awakening",
+        "text": "1800ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成銀（金の動き）"
+    },
+    {
+      "id": "silver_04",
+      "piece": "銀",
+      "name": "アガサ・クリスティ",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 2900,
+      "atk": 2700,
+      "ability": "【罠】取られたとき、取った駒を2手番行動不能にする",
+      "special": {
+        "type": "awakening",
+        "text": "相手の持ち駒1枚を3手番封印する（打てなくなる）"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "銀の動き（成った後も動きは変わらない）"
+    },
+    {
+      "id": "silver_05",
+      "piece": "銀",
+      "name": "ダーウィン",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 2600,
+      "atk": 1900,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP800回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成銀（金の動き）"
+    },
+    {
+      "id": "silver_06",
+      "piece": "銀",
+      "name": "ゼノン",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 2200,
+      "atk": 2200,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "隣の敵1体を1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成銀（金の動き）"
+    },
+    {
+      "id": "knight_01",
+      "piece": "桂",
+      "name": "フーディーニ",
+      "rarity": "S",
+      "attribute": "妨害",
+      "cost": 5,
+      "hp": 2500,
+      "atk": 3600,
+      "ability": "跳び越えた敵の駒を1手番行動不能にする",
+      "special": {
+        "type": "awakening",
+        "text": "1500ダメージ"
+      },
+      "move_before": "桂馬の跳び（前）＋桂馬の跳び（後ろ）",
+      "move_after": "8方向すべてに桂馬の跳び（1マスの移動はできない）"
+    },
+    {
+      "id": "knight_02",
+      "piece": "桂",
+      "name": "アンリ・デュナン",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 2500,
+      "atk": 2700,
+      "ability": "撃破したとき、HP600回復",
+      "special": {
+        "type": "awakening",
+        "text": "HP1200回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成桂（金の動き）"
+    },
+    {
+      "id": "knight_03",
+      "piece": "桂",
+      "name": "ジェロニモ",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 1800,
+      "atk": 3900,
+      "ability": "跳び越えた敵1体につき600ダメージ",
+      "special": {
+        "type": "awakening",
+        "text": "2000ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成桂（金の動き）"
+    },
+    {
+      "id": "knight_04",
+      "piece": "桂",
+      "name": "ピカソ",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 2200,
+      "atk": 3200,
+      "ability": "撃破したとき、着地したマスの隣の敵1体を1マス後ろへ押し出す",
+      "special": {
+        "type": "awakening",
+        "text": "隣の敵1体を1マス後ろへ押し出し、1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成桂（金の動き）"
+    },
+    {
+      "id": "knight_05",
+      "piece": "桂",
+      "name": "ガリレオ",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 2000,
+      "atk": 2200,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP800回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成桂（金の動き）"
+    },
+    {
+      "id": "knight_06",
+      "piece": "桂",
+      "name": "ライト兄弟",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 1500,
+      "atk": 2900,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "1200ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成桂（金の動き）"
+    },
+    {
+      "id": "lance_01",
+      "piece": "香",
+      "name": "アッティラ",
+      "rarity": "S",
+      "attribute": "攻",
+      "cost": 5,
+      "hp": 2100,
+      "atk": 3900,
+      "ability": "4マス以上進んで撃破したとき、追加で2000ダメージ",
+      "special": {
+        "type": "awakening",
+        "text": "1500ダメージ＋同じ筋の敵1体につき500ダメージ"
+      },
+      "move_before": "香の動き＋後ろに1マス",
+      "move_after": "前に何マスでも＋横1マス（成香にはならない）"
+    },
+    {
+      "id": "lance_02",
+      "piece": "香",
+      "name": "ハドリアヌス",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 2700,
+      "atk": 2400,
+      "ability": "同じ筋でこの駒より後ろにいる味方は、取られたときの撃破ダメージ−30%",
+      "special": {
+        "type": "awakening",
+        "text": "HP1000回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "周り8マスに1マス（王の動き）。前へ遠くには進めなくなる"
+    },
+    {
+      "id": "lance_03",
+      "piece": "香",
+      "name": "ウィリアム・テル",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 1900,
+      "atk": 3400,
+      "ability": "撃破したとき、同じ筋のさらに先にいる最初の敵1体につき800ダメージ（貫通）",
+      "special": {
+        "type": "awakening",
+        "text": "1800ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成香（金の動き）"
+    },
+    {
+      "id": "lance_04",
+      "piece": "香",
+      "name": "ネルソン",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 2200,
+      "atk": 3000,
+      "ability": "撃破したとき、同じ筋の敵1体を1手番行動不能にする",
+      "special": {
+        "type": "awakening",
+        "text": "同じ筋の敵すべてを1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成香（金の動き）"
+    },
+    {
+      "id": "lance_05",
+      "piece": "香",
+      "name": "リンカーン",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 2000,
+      "atk": 2000,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP800回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成香（金の動き）"
+    },
+    {
+      "id": "lance_06",
+      "piece": "香",
+      "name": "アルキメデス",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 1800,
+      "atk": 2400,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "同じ筋で一番近い敵1体を1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "成香（金の動き）"
+    },
+    {
+      "id": "pawn_01",
+      "piece": "歩",
+      "name": "ネルソン・マンデラ",
+      "rarity": "S",
+      "attribute": "守",
+      "cost": 5,
+      "hp": 2600,
+      "atk": 2000,
+      "ability": "味方の歩が取られるたび、HP400回復",
+      "special": {
+        "type": "awakening",
+        "text": "HP2000回復"
+      },
+      "move_before": "前に1マス、または横に1マス",
+      "move_after": "金の動き＋後ろ斜め1マス（王の動き）"
+    },
+    {
+      "id": "pawn_02",
+      "piece": "歩",
+      "name": "マザー・テレサ",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 2100,
+      "atk": 1900,
+      "ability": "隣の味方が取られたときの撃破ダメージ−20%",
+      "special": {
+        "type": "awakening",
+        "text": "HP800回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_03",
+      "piece": "歩",
+      "name": "ヒポクラテス",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 2100,
+      "atk": 1900,
+      "ability": "撃破したとき、HP500回復",
+      "special": {
+        "type": "awakening",
+        "text": "HP1200回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_04",
+      "piece": "歩",
+      "name": "パスツール",
+      "rarity": "A",
+      "attribute": "守",
+      "cost": 3,
+      "hp": 2000,
+      "atk": 1800,
+      "ability": "取られたとき、HP1000回復",
+      "special": {
+        "type": "awakening",
+        "text": "HP800回復"
+      },
+      "move_before": "前に1マス、または後ろに1マス",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_05",
+      "piece": "歩",
+      "name": "メンデル",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 1700,
+      "atk": 1500,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP600回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_06",
+      "piece": "歩",
+      "name": "ファーブル",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 1700,
+      "atk": 1500,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "次に受ける撃破ダメージ−30%（1回）"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_07",
+      "piece": "歩",
+      "name": "カント",
+      "rarity": "B",
+      "attribute": "守",
+      "cost": 1,
+      "hp": 1700,
+      "atk": 1400,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "HP700回復"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_08",
+      "piece": "歩",
+      "name": "スパルタクス",
+      "rarity": "S",
+      "attribute": "攻",
+      "cost": 5,
+      "hp": 1700,
+      "atk": 2900,
+      "ability": "撃破するたび、この駒のATK+500（重ねがけできる）",
+      "special": {
+        "type": "awakening",
+        "text": "2000ダメージ"
+      },
+      "move_before": "前に1マスまたは2マス（飛び越えはできない）",
+      "move_after": "前に何マスでも（香の動き）。横や後ろには動けない"
+    },
+    {
+      "id": "pawn_09",
+      "piece": "歩",
+      "name": "リチャード1世",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 1500,
+      "atk": 2500,
+      "ability": "撃破したとき、追加で600ダメージ",
+      "special": {
+        "type": "awakening",
+        "text": "1500ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_10",
+      "piece": "歩",
+      "name": "ソクラテス",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 1400,
+      "atk": 2500,
+      "ability": "取られたとき、取った相手に1200ダメージ",
+      "special": {
+        "type": "awakening",
+        "text": "1200ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_11",
+      "piece": "歩",
+      "name": "コロンブス",
+      "rarity": "A",
+      "attribute": "攻",
+      "cost": 3,
+      "hp": 1500,
+      "atk": 2400,
+      "ability": "敵陣にいる間、ATK+30%",
+      "special": {
+        "type": "awakening",
+        "text": "1500ダメージ"
+      },
+      "move_before": "前に1マス、または斜め前に1マス",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_12",
+      "piece": "歩",
+      "name": "マゼラン",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 1200,
+      "atk": 2000,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "1000ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_13",
+      "piece": "歩",
+      "name": "ニュートン",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 1200,
+      "atk": 2000,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "800ダメージ＋この駒のATK+20%"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_14",
+      "piece": "歩",
+      "name": "ノーベル",
+      "rarity": "B",
+      "attribute": "攻",
+      "cost": 1,
+      "hp": 1200,
+      "atk": 2000,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "1200ダメージ"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_15",
+      "piece": "歩",
+      "name": "マタ・ハリ",
+      "rarity": "S",
+      "attribute": "妨害",
+      "cost": 5,
+      "hp": 2100,
+      "atk": 2500,
+      "ability": "撃破したとき、相手に毒（相手の手番開始時に500ダメージ、3手番）",
+      "special": {
+        "type": "awakening",
+        "text": "相手の持ち駒をすべて2手番封印する（打てなくなる）"
+      },
+      "move_before": "前に1マス、または斜め前に1マス",
+      "move_after": "金の動き＋前に桂馬の跳び"
+    },
+    {
+      "id": "pawn_16",
+      "piece": "歩",
+      "name": "エジソン",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 1800,
+      "atk": 2200,
+      "ability": "【罠】取られたとき、取った駒を1手番行動不能にする",
+      "special": {
+        "type": "awakening",
+        "text": "隣の敵1体を1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_17",
+      "piece": "歩",
+      "name": "ノストラダムス",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 1800,
+      "atk": 2200,
+      "ability": "【罠】取られたとき、取った駒を2手番封印する",
+      "special": {
+        "type": "awakening",
+        "text": "600ダメージ＋隣の敵1体を1手番封印する"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_18",
+      "piece": "歩",
+      "name": "メディチ",
+      "rarity": "A",
+      "attribute": "妨害",
+      "cost": 3,
+      "hp": 1800,
+      "atk": 2200,
+      "ability": "盤上にいる間、相手が駒を打つときの自傷ダメージ+300",
+      "special": {
+        "type": "awakening",
+        "text": "この駒の能力が「自傷ダメージ+600」になる"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_19",
+      "piece": "歩",
+      "name": "リビングストン",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 1400,
+      "atk": 1800,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "相手の持ち駒1枚を1手番封印する（打てなくなる）"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_20",
+      "piece": "歩",
+      "name": "クック",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 1400,
+      "atk": 1800,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "前方で一番近い敵1体を1手番行動不能にする"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    },
+    {
+      "id": "pawn_21",
+      "piece": "歩",
+      "name": "ラスプーチン",
+      "rarity": "B",
+      "attribute": "妨害",
+      "cost": 1,
+      "hp": 1400,
+      "atk": 1800,
+      "ability": null,
+      "special": {
+        "type": "awakening",
+        "text": "相手に毒（相手の手番開始時に300ダメージ、3手番）"
+      },
+      "move_before": "将棋どおり",
+      "move_after": "と金（金の動き）"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+node_modules
+dist
+将棋大乱闘.html
+.claude/
+firebase-debug.log
+*.local
